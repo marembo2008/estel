@@ -11,10 +11,12 @@ import com.estel.services.support.transhistory.TransHistoryRequest;
 import com.estel.services.support.transhistory.TransHistoryResponse;
 import com.estel.services.support.wallettransfer.WalletTransferInfoRequest;
 import com.estel.services.support.wallettransfer.WalletTransferInfoResponse;
+import com.google.common.base.Throwables;
 
 import java.io.Serializable;
 import java.net.URL;
 import javax.annotation.Nonnull;
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
@@ -30,15 +32,22 @@ public class EstelService implements Serializable {
     private static final long serialVersionUID = 10394898376346L;
 
     private final ConfigurationService estelConfigurationService;
-    private final EstelTprServices estelTprServices;
+    private EstelTprServices estelTprServices;
 
     @Inject
     public EstelService(@Nonnull final ConfigurationService estelConfigurationService) throws Exception {
         this.estelConfigurationService = checkNotNull(estelConfigurationService, "the estelConfigurationService must not be null");
+    }
 
-        final String wsdlLocation = this.estelConfigurationService.getWsdlLocation();
-        final EstelTprServicesService estelTprServicesService = new EstelTprServicesService(new URL(wsdlLocation));
-        this.estelTprServices = estelTprServicesService.getEstelTprServices();
+    @PostConstruct
+    protected void initialize() {
+        try {
+            final String wsdlLocation = this.estelConfigurationService.getWsdlLocation();
+            final EstelTprServicesService estelTprServicesService = new EstelTprServicesService(new URL(wsdlLocation));
+            this.estelTprServices = estelTprServicesService.getEstelTprServices();
+        } catch (final Exception ex) {
+            throw Throwables.propagate(ex);
+        }
     }
 
     public WalletTransferInfoResponse wallettransfer(@Nonnull final WalletTransferInfoRequest walletTransferInfoRequest) {
