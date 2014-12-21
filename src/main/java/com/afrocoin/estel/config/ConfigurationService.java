@@ -12,4 +12,6 @@ public interface ConfigurationService {
 
     String getAuthenticationKey();
 
+    boolean isActive();
+
 }

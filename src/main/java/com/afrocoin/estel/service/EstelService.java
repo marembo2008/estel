@@ -21,6 +21,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  *
@@ -41,28 +42,38 @@ public class EstelService implements Serializable {
 
     @PostConstruct
     protected void initialize() {
-        try {
-            final String wsdlLocation = this.estelConfigurationService.getWsdlLocation();
-            final EstelTprServicesService estelTprServicesService = new EstelTprServicesService(new URL(wsdlLocation));
-            this.estelTprServices = estelTprServicesService.getEstelTprServices();
-        } catch (final Exception ex) {
-            throw Throwables.propagate(ex);
+        if (estelConfigurationService.isActive()) {
+            try {
+                final String wsdlLocation = this.estelConfigurationService.getWsdlLocation();
+                final EstelTprServicesService estelTprServicesService = new EstelTprServicesService(new URL(wsdlLocation));
+                this.estelTprServices = estelTprServicesService.getEstelTprServices();
+            } catch (final Exception ex) {
+                throw Throwables.propagate(ex);
+            }
         }
     }
 
     public WalletTransferInfoResponse wallettransfer(@Nonnull final WalletTransferInfoRequest walletTransferInfoRequest) {
+        checkState(estelConfigurationService.isActive(), "the estelservice has not been activated yet. Please activate in configservice");
+
         return estelTprServices.wallettransfer(checkNotNull(walletTransferInfoRequest, "the walletTransferInfoRequest must be specified"));
     }
 
     public TopupResponse getTopup(@Nonnull final TopupRequest topupRequest) {
+        checkState(estelConfigurationService.isActive(), "the estelservice has not been activated yet. Please activate in configservice");
+
         return estelTprServices.getTopup(checkNotNull(topupRequest, "the topupRequest must be specified"));
     }
 
     public TransHistoryResponse getTransHistory(@Nonnull final TransHistoryRequest historyRequest) {
+        checkState(estelConfigurationService.isActive(), "the estelservice has not been activated yet. Please activate in configservice");
+
         return estelTprServices.getTransHistory(checkNotNull(historyRequest, "the historyRequest must be specified"));
     }
 
     public BalanceResponse getBalance() {
+        checkState(estelConfigurationService.isActive(), "the estelservice has not been activated yet. Please activate in configservice");
+
         final BalanceRequest balanceRequest = new BalanceRequest();
         balanceRequest.setAgentCode(estelConfigurationService.getAgentCode());
         balanceRequest.setMpin(estelConfigurationService.getAuthenticationKey());
