@@ -9,7 +9,7 @@
 
     <groupId>com.afrocoin.estel</groupId>
     <artifactId>estel</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <build>
@@ -27,7 +27,7 @@
                             <wsdlFiles>
                                 <wsdlFile>EstelTprServices.wsdl</wsdlFile>
                             </wsdlFiles>
-                            <packageName></packageName>
+                            <packageName />
                             <wsdlLocation>file:/home/marembo/EstelTprServices.wsdl</wsdlLocation>
                             <staleFile>${project.build.directory}/jaxws/stale/EstelTprServices.stale</staleFile>
                         </configuration>
